@@ -1,7 +1,5 @@
 <?php
 declare(strict_types=1);
-
-ob_start();
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
@@ -10,33 +8,6 @@ require_once __DIR__ . '/conexion.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-}
-
-$loginError = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuario'], $_POST['password'])) {
-    $usuario = trim((string) $_POST['usuario']);
-    $password = trim((string) $_POST['password']);
-
-    if ($conexion) {
-        $res = @pg_query_params(
-            $conexion,
-            "SELECT * FROM admins WHERE usuario = $1 AND password = $2",
-            [$usuario, $password]
-        );
-
-        if ($res && pg_num_rows($res) === 1) {
-            $_SESSION['admin'] = $usuario;
-            header('Location: panel.php');
-            exit;
-        }
-
-        if (!$res) {
-            error_log('Error en login admins: ' . pg_last_error($conexion));
-        }
-    }
-
-    $loginError = 'Usuario o contrasena incorrectos';
 }
 
 $count = 0;
@@ -48,16 +19,13 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
 $productos = [];
 if ($conexion) {
-    $query = "SELECT * FROM productos ORDER BY id DESC";
-    $result = @pg_query($conexion, $query);
-
-    if (!$result) {
-        error_log('Error en query: ' . pg_last_error($conexion));
-        $productos = [];
-    } else {
+    $result = @pg_query($conexion, "SELECT * FROM productos ORDER BY id DESC");
+    if ($result) {
         while ($row = pg_fetch_assoc($result)) {
             $productos[] = $row;
         }
+    } else {
+        error_log('Error productos: ' . pg_last_error($conexion));
     }
 }
 ?>
@@ -73,7 +41,6 @@ if ($conexion) {
 
 <header class="site-header">
   <div class="logo"><img src="IMG/tecno.png" alt="TecnoMovil MX"></div>
-
   <nav class="main-nav">
     <a href="index.php">Inicio</a>
     <a href="marca.php?marca=iPhone">iPhone</a>
@@ -82,7 +49,6 @@ if ($conexion) {
     <a href="marca.php?marca=Xiaomi">Xiaomi</a>
     <a href="marca.php?marca=OPPO">OPPO</a>
     <a href="tracking.php">Tracking</a>
-
     <form class="header-search" action="search.php" method="get" autocomplete="off">
       <button type="button" class="search-toggle" aria-label="Abrir busqueda">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -94,7 +60,6 @@ if ($conexion) {
       </div>
     </form>
   </nav>
-
   <div class="icons">
     <a href="carrito.php" class="icon-btn cart-link" aria-label="Carrito">
       <svg viewBox="0 0 24 24" class="cart-icon" aria-hidden="true">
@@ -118,30 +83,29 @@ if ($conexion) {
     <div class="grid">
       <?php if (empty($productos)) { ?>
         <p>No hay productos disponibles</p>
-      <?php } else { ?>
-        <?php foreach ($productos as $p) {
-          $rawImage = (string) ($p['imagen'] ?? '');
+      <?php } else {
+        foreach ($productos as $p) {
+          $rawImage  = (string) ($p['imagen'] ?? '');
           $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
-          $img = htmlspecialchars($imagePath ?: 'IMG/tecno.png');
-          $nombre = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
-          $precio = number_format((float) ($p['precio'] ?? 0), 2);
-          $id = (int) ($p['id'] ?? 0);
-        ?>
-          <div class="card">
-            <div class="img-box">
-              <a href="producto.php?id=<?= $id ?>"><img src="<?= $img ?>" alt="<?= $nombre ?>"></a>
-            </div>
-            <div class="card-content">
-              <h3><?= $nombre ?></h3>
-              <p class="precio">$<?= $precio ?></p>
-              <div class="card-actions">
-                <button class="btn primary add-to-cart" data-id="<?= $id ?>" type="button">Agregar al carrito</button>
-                <a href="producto.php?id=<?= $id ?>" class="btn ghost ver">Ver</a>
-              </div>
+          $img       = htmlspecialchars($imagePath);
+          $nombre    = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
+          $precio    = number_format((float) ($p['precio'] ?? 0), 2);
+          $id        = (int) ($p['id'] ?? 0);
+      ?>
+        <div class="card">
+          <div class="img-box">
+            <a href="producto.php?id=<?= $id ?>"><img src="<?= $img ?>" alt="<?= $nombre ?>"></a>
+          </div>
+          <div class="card-content">
+            <h3><?= $nombre ?></h3>
+            <p class="precio">$<?= $precio ?></p>
+            <div class="card-actions">
+              <button class="btn primary add-to-cart" data-id="<?= $id ?>" type="button">Agregar al carrito</button>
+              <a href="producto.php?id=<?= $id ?>" class="btn ghost ver">Ver</a>
             </div>
           </div>
-        <?php } ?>
-      <?php } ?>
+        </div>
+      <?php } } ?>
     </div>
   </section>
 </div>
@@ -155,10 +119,10 @@ if ($conexion) {
   <div class="modal-content login-box">
     <button class="close" id="closeLogin" aria-label="Cerrar">x</button>
     <h2 class="login-title">Acceso Administrador</h2>
-    <div id="loginError" class="form-error" style="<?= $loginError !== '' ? 'display:block;' : 'display:none;' ?>"><?= htmlspecialchars($loginError) ?></div>
-    <form method="post" action="" id="loginForm">
+    <div id="loginError" class="form-error" style="display:none;"></div>
+    <form id="loginForm">
       <input name="usuario" placeholder="Usuario" required>
-      <input name="password" type="password" placeholder="Contrasena" required>
+      <input name="password" type="password" placeholder="Contraseña" required>
       <button type="submit" class="btn primary" style="width:100%; margin-top:12px;">Entrar</button>
     </form>
   </div>
@@ -168,6 +132,5 @@ if ($conexion) {
 <script src="js/main.js?v=6"></script>
 <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
 <script src="https://files.bpcontent.cloud/2026/04/15/04/20260415044635-LQSLIT6F.js" defer></script>
-
 </body>
 </html>

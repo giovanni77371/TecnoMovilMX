@@ -1,24 +1,38 @@
 <?php
+declare(strict_types=1);
+ini_set('display_errors', '0');
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+
 include "conexion.php";
 if (session_status() === PHP_SESSION_NONE) {
-  session_start();
+    session_start();
 }
 
-$marca = trim($_GET['marca'] ?? '');
+$marca = trim((string) ($_GET['marca'] ?? ''));
 $count = 0;
 if (!empty($_SESSION['cart'])) {
-  foreach ($_SESSION['cart'] as $qty) {
-    $count += $qty;
-  }
+    foreach ($_SESSION['cart'] as $qty) {
+        $count += (int) $qty;
+    }
+}
+
+$productos = [];
+if ($conexion && $marca !== '') {
+    $res = pg_query_params($conexion, "SELECT * FROM productos WHERE marca = \$1 ORDER BY id DESC", [$marca]);
+    if ($res) {
+        while ($row = pg_fetch_assoc($res)) {
+            $productos[] = $row;
+        }
+    } else {
+        error_log('Error marca: ' . pg_last_error($conexion));
+    }
 }
 ?>
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title><?= htmlspecialchars($marca ?: 'Marca') ?></title>
+  <title><?= htmlspecialchars($marca ?: 'Marca') ?> | TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
   <link rel="stylesheet" href="CSS/styles.css?v=10">
 </head>
@@ -26,7 +40,6 @@ if (!empty($_SESSION['cart'])) {
 
 <header class="site-header">
   <div class="logo"><img src="IMG/tecno.png" alt="TecnoMovil MX"></div>
-
   <nav class="main-nav">
     <a href="index.php">Inicio</a>
     <a href="marca.php?marca=iPhone">iPhone</a>
@@ -35,7 +48,6 @@ if (!empty($_SESSION['cart'])) {
     <a href="marca.php?marca=Xiaomi">Xiaomi</a>
     <a href="marca.php?marca=OPPO">OPPO</a>
     <a href="tracking.php">Tracking</a>
-
     <form class="header-search" action="search.php" method="get" autocomplete="off">
       <button type="button" class="search-toggle" aria-label="Abrir busqueda">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -47,7 +59,6 @@ if (!empty($_SESSION['cart'])) {
       </div>
     </form>
   </nav>
-
   <div class="icons">
     <a href="carrito.php" class="icon-btn cart-link" aria-label="Carrito">
       <svg viewBox="0 0 24 24" class="cart-icon" aria-hidden="true">
@@ -64,33 +75,30 @@ if (!empty($_SESSION['cart'])) {
       <p class="section-eyebrow">Marca</p>
       <h2><?= htmlspecialchars($marca) ?></h2>
     </div>
-
     <div class="grid">
-      <?php
-      $res = pg_query_params($conexion, "SELECT * FROM productos WHERE marca = $1 ORDER BY id DESC", [$marca]);
-      if (pg_num_rows($res) == 0) {
-        echo '<p class="empty-state">No hay productos para esta marca.</p>';
-      } else {
-        while ($p = pg_fetch_assoc($res)) {
-          $rawImage = (string) ($p['imagen'] ?? '');
+      <?php if (empty($productos)) { ?>
+        <p class="empty-state">No hay productos para esta marca.</p>
+      <?php } else {
+        foreach ($productos as $p) {
+          $rawImage  = (string) ($p['imagen'] ?? '');
           $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
-          $img = htmlspecialchars($imagePath ?: 'IMG/tecno.png');
-          echo "<div class='card'>
-            <div class='img-box'>
-              <a href='producto.php?id={$p['id']}'><img src='{$img}' alt='" . htmlspecialchars($p['nombre']) . "'></a>
-            </div>
-            <div class='card-content'>
-              <h3>" . htmlspecialchars($p['nombre']) . "</h3>
-              <p class='precio'>$" . number_format($p['precio'], 2) . "</p>
-              <div class='card-actions'>
-                <button class='btn primary add-to-cart' data-id='{$p['id']}' type='button'>Agregar al carrito</button>
-                <a href='producto.php?id={$p['id']}' class='btn ghost ver'>Ver</a>
-              </div>
-            </div>
-          </div>";
-        }
-      }
+          $img       = htmlspecialchars($imagePath);
+          $id        = (int) $p['id'];
       ?>
+        <div class="card">
+          <div class="img-box">
+            <a href="producto.php?id=<?= $id ?>"><img src="<?= $img ?>" alt="<?= htmlspecialchars($p['nombre']) ?>"></a>
+          </div>
+          <div class="card-content">
+            <h3><?= htmlspecialchars($p['nombre']) ?></h3>
+            <p class="precio">$<?= number_format((float)$p['precio'], 2) ?></p>
+            <div class="card-actions">
+              <button class="btn primary add-to-cart" data-id="<?= $id ?>" type="button">Agregar al carrito</button>
+              <a href="producto.php?id=<?= $id ?>" class="btn ghost ver">Ver</a>
+            </div>
+          </div>
+        </div>
+      <?php } } ?>
     </div>
   </section>
 </div>
@@ -105,9 +113,9 @@ if (!empty($_SESSION['cart'])) {
     <button class="close" id="closeLogin" aria-label="Cerrar">x</button>
     <h2 class="login-title">Acceso Administrador</h2>
     <div id="loginError" class="form-error" style="display:none;"></div>
-    <form method="post" action="" id="loginForm">
+    <form id="loginForm">
       <input name="usuario" placeholder="Usuario" required>
-      <input name="password" type="password" placeholder="Contrasena" required>
+      <input name="password" type="password" placeholder="Contraseña" required>
       <button type="submit" class="btn primary" style="width:100%; margin-top:12px;">Entrar</button>
     </form>
   </div>
@@ -117,4 +125,3 @@ if (!empty($_SESSION['cart'])) {
 <script src="js/main.js?v=6"></script>
 </body>
 </html>
-
