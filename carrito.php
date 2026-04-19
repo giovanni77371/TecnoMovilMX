@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 include "conexion.php";
 
@@ -59,7 +59,7 @@ unset($_SESSION['checkout_error']);
 <body>
 
 <header class="site-header compact-header">
-  <div class="logo"><img src="img/tecno.png" alt="TecnoMovil MX"></div>
+  <div class="logo"><img src="IMG/tecno.png" alt="TecnoMovil MX"></div>
 
   <nav class="main-nav">
     <a href="index.php">Inicio</a>
@@ -122,7 +122,9 @@ unset($_SESSION['checkout_error']);
           </thead>
           <tbody>
             <?php foreach ($items as $it) {
-              $img = htmlspecialchars($it['imagen'] ?: 'img/default.png');
+              $rawImage = (string) ($it['imagen'] ?? '');
+              $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
+              $img = htmlspecialchars($imagePath ?: 'IMG/tecno.png');
             ?>
               <tr>
                 <td>

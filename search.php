@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include "conexion.php";
 session_start();
 
@@ -36,7 +36,7 @@ if ($query !== '') {
 <body>
 
 <header class="site-header">
-  <div class="logo"><img src="img/tecno.png" alt="TecnoMovil MX"></div>
+  <div class="logo"><img src="IMG/tecno.png" alt="TecnoMovil MX"></div>
 
   <nav class="main-nav">
     <a href="index.php">Inicio</a>
@@ -84,7 +84,9 @@ if ($query !== '') {
     <?php } elseif ($results && pg_num_rows($results) > 0) { ?>
       <div class="grid">
         <?php while ($p = pg_fetch_assoc($results)) {
-          $img = htmlspecialchars($p['imagen'] ?: 'img/default.png');
+          $rawImage = (string) ($p['imagen'] ?? '');
+          $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
+          $img = htmlspecialchars($imagePath ?: 'IMG/tecno.png');
           $nombre = htmlspecialchars($p['nombre']);
           $precio = number_format($p['precio'], 2);
           $id = (int) $p['id'];

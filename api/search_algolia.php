@@ -23,7 +23,7 @@ function normalizeDbHits($result): array
             'id' => $id,
             'nombre' => (string) ($row['nombre'] ?? ''),
             'precio' => isset($row['precio']) ? (float) $row['precio'] : 0,
-            'imagen' => (string) ($row['imagen'] ?? 'img/default.png'),
+            'imagen' => (string) ($row['imagen'] ?? 'IMG/tecno.png'),
             'marca' => (string) ($row['marca'] ?? ''),
             'url' => $id > 0 ? 'producto.php?id=' . $id : '#',
         ];
@@ -166,7 +166,7 @@ $normalizedHits = array_map(static function (array $hit): array {
         'id' => $id,
         'nombre' => (string) ($hit['nombre'] ?? ''),
         'precio' => isset($hit['precio']) ? (float) $hit['precio'] : 0,
-        'imagen' => (string) ($hit['imagen'] ?? 'img/default.png'),
+        'imagen' => (string) ($hit['imagen'] ?? 'IMG/tecno.png'),
         'marca' => (string) ($hit['marca'] ?? ''),
         'url' => $id > 0 ? 'producto.php?id=' . $id : '#',
     ];

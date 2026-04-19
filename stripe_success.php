@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 include "stripe_config.php";
 include "conexion.php";

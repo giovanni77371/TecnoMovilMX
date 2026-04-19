@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include "conexion.php";
 session_start();
 
@@ -27,7 +27,7 @@ if (!empty($_SESSION['cart'])) {
 <body>
 
 <header class="site-header">
-  <div class="logo"><img src="img/tecno.png" alt="TecnoMovil MX"></div>
+  <div class="logo"><img src="IMG/tecno.png" alt="TecnoMovil MX"></div>
 
   <nav class="main-nav">
     <a href="index.php">Inicio</a>
@@ -62,7 +62,11 @@ if (!empty($_SESSION['cart'])) {
 
 <div class="container page-shell product-layout">
   <div class="product-media">
-    <img src="<?= htmlspecialchars($p['imagen']) ?>" alt="<?= htmlspecialchars($p['nombre']) ?>">
+    <?php
+      $rawImage = (string) ($p['imagen'] ?? '');
+      $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
+    ?>
+    <img src="<?= htmlspecialchars($imagePath ?: 'IMG/tecno.png') ?>" alt="<?= htmlspecialchars($p['nombre']) ?>">
   </div>
 
   <div class="product-info">

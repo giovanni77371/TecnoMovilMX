@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include "conexion.php";
@@ -25,7 +25,7 @@ if (!empty($_SESSION['cart'])) {
 <body>
 
 <header class="site-header">
-  <div class="logo"><img src="img/tecno.png" alt="TecnoMovil MX"></div>
+  <div class="logo"><img src="IMG/tecno.png" alt="TecnoMovil MX"></div>
 
   <nav class="main-nav">
     <a href="index.php">Inicio</a>
@@ -72,7 +72,9 @@ if (!empty($_SESSION['cart'])) {
         echo '<p class="empty-state">No hay productos para esta marca.</p>';
       } else {
         while ($p = pg_fetch_assoc($res)) {
-          $img = htmlspecialchars($p['imagen'] ?: 'img/default.png');
+          $rawImage = (string) ($p['imagen'] ?? '');
+          $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
+          $img = htmlspecialchars($imagePath ?: 'IMG/tecno.png');
           echo "<div class='card'>
             <div class='img-box'>
               <a href='producto.php?id={$p['id']}'><img src='{$img}' alt='" . htmlspecialchars($p['nombre']) . "'></a>
@@ -94,7 +96,7 @@ if (!empty($_SESSION['cart'])) {
 </div>
 
 <footer>
-  <img src="img/TecnoMovil.png" alt="TecnoMovil MX">
+  <img src="IMG/TecnoMovil.png" alt="TecnoMovil MX">
   <p>&copy; 2025 TecnoMovil MX - Todos los derechos reservados.</p>
 </footer>
 

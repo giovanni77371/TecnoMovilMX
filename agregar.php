@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 if (!isset($_SESSION['admin'])) { header('Location: index.php'); exit; }
 include "conexion.php";
@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $precio = $_POST['precio'];
     $descripcion = $_POST['descripcion'];
     $caracteristicas = $_POST['caracteristicas'];
-    $img_path = 'img/default.png';
+    $img_path = 'IMG/tecno.png';
 
     if (!empty($_FILES['imagen']['name'])) {
         $ext = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include "conexion.php";
 include "includes/envios.php";
 session_start();
@@ -36,7 +36,7 @@ $progressIndex = $envio ? envios_progress_index($envio['estado']) : -1;
 </head>
 <body>
 <header class="site-header">
-  <div class="logo"><img src="img/tecno.png" alt="TecnoMovil MX"></div>
+  <div class="logo"><img src="IMG/tecno.png" alt="TecnoMovil MX"></div>
 
   <nav class="main-nav">
     <a href="index.php">Inicio</a>
