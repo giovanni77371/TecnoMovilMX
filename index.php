@@ -60,6 +60,35 @@ if ($conexion) {
       </div>
     </form>
   </nav>
+  <div class="header-phones" aria-label="Celulares destacados">
+    <article class="header-phone-card">
+      <img src="IMG/iphone13.png" alt="iPhone 13">
+      <div class="phone-copy">
+        <h4>iPhone 13</h4>
+        <p>Pantalla OLED y gran rendimiento para foto y video.</p>
+        <p class="phone-price">$14,999 MXN</p>
+        <p class="phone-features">128GB | 5G | Camara dual 12MP</p>
+      </div>
+    </article>
+    <article class="header-phone-card">
+      <img src="IMG/s21.png" alt="Samsung Galaxy S21">
+      <div class="phone-copy">
+        <h4>Galaxy S21</h4>
+        <p>Diseño premium con pantalla fluida y gran bateria.</p>
+        <p class="phone-price">$12,499 MXN</p>
+        <p class="phone-features">128GB | 120Hz | Snapdragon</p>
+      </div>
+    </article>
+    <article class="header-phone-card">
+      <img src="IMG/xiaomi_redmi12.png" alt="Xiaomi Redmi 12">
+      <div class="phone-copy">
+        <h4>Redmi 12</h4>
+        <p>Excelente opcion calidad-precio para uso diario.</p>
+        <p class="phone-price">$4,299 MXN</p>
+        <p class="phone-features">256GB | 50MP | 5000mAh</p>
+      </div>
+    </article>
+  </div>
   <div class="icons">
     <a href="carrito.php" class="icon-btn cart-link" aria-label="Carrito">
       <svg viewBox="0 0 24 24" class="cart-icon" aria-hidden="true">
