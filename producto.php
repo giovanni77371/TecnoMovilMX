@@ -15,26 +15,40 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $id = intval($_GET['id'] ?? 0);
-$res = pg_query_params($conexion, "SELECT * FROM productos WHERE id = $1", [$id]);
-if (!$p = pg_fetch_assoc($res)) {
+$res = @pg_query_params($conexion, 'SELECT * FROM productos WHERE id = $1', [$id]);
+if (!$res) {
+    error_log('Error detalle producto: ' . pg_last_error($conexion));
+    echo 'Producto no encontrado';
+    exit;
+}
+
+$p = pg_fetch_assoc($res);
+if (!$p) {
     echo "Producto no encontrado";
     exit;
 }
 
 $count = 0;
-if (!empty($_SESSION['cart'])) {
+if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     foreach ($_SESSION['cart'] as $qty) {
-        $count += $qty;
+        $count += (int) $qty;
     }
 }
+
+$nombre = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
+$marca = htmlspecialchars((string) ($p['marca'] ?? ''));
+$precio = is_numeric((string) ($p['precio'] ?? null)) ? number_format((float) $p['precio'], 2) : '0.00';
+$descripcion = trim((string) ($p['descripcion'] ?? ''));
+$caracteristicas = trim((string) ($p['caracteristicas'] ?? ''));
+$imagePath = normalizarImagenProducto($p['imagen'] ?? null);
 ?>
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title><?= htmlspecialchars($p['nombre']) ?></title>
+  <title><?= $nombre ?></title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=10">
+  <link rel="stylesheet" href="CSS/styles.css?v=12">
 </head>
 <body>
 
@@ -74,20 +88,19 @@ if (!empty($_SESSION['cart'])) {
 
 <div class="container page-shell product-layout">
   <div class="product-media">
-    <?php
-      $imagePath = normalizarImagenProducto($p['imagen'] ?? null);
-    ?>
-    <img src="<?= htmlspecialchars($imagePath ?: 'IMG/tecno.png') ?>" alt="<?= htmlspecialchars($p['nombre']) ?>">
+    <img src="<?= htmlspecialchars($imagePath) ?>" alt="<?= $nombre ?>">
   </div>
 
   <div class="product-info">
-    <p class="section-eyebrow"><?= htmlspecialchars($p['marca']) ?></p>
-    <h1><?= htmlspecialchars($p['nombre']) ?></h1>
-    <h2 class="product-price">$<?= number_format($p['precio'], 2) ?></h2>
-    <p><?= nl2br(htmlspecialchars((string) ($p['descripcion'] ?? ''))) ?></p>
+    <p class="section-eyebrow"><?= $marca ?></p>
+    <h1><?= $nombre ?></h1>
+    <h2 class="product-price">$<?= $precio ?></h2>
+    <p class="product-copy"><?= nl2br(htmlspecialchars($descripcion !== '' ? $descripcion : 'Descripcion no disponible por el momento.')) ?></p>
 
-    <h3>Caracteristicas</h3>
-    <p><?= nl2br(htmlspecialchars((string) ($p['caracteristicas'] ?? ''))) ?></p>
+    <div class="product-specs">
+      <h3>Caracteristicas</h3>
+      <p class="product-copy"><?= nl2br(htmlspecialchars($caracteristicas !== '' ? $caracteristicas : 'Caracteristicas no disponibles por el momento.')) ?></p>
+    </div>
 
     <div class="product-actions">
       <button class="btn primary add-to-cart" data-id="<?= (int) $p['id'] ?>" type="button">Agregar al carrito</button>
@@ -110,7 +123,7 @@ if (!empty($_SESSION['cart'])) {
 </div>
 
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=6"></script>
+<script src="js/main.js?v=7"></script>
 </body>
 </html>
 
