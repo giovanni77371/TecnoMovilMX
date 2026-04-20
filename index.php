@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
@@ -19,7 +20,7 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
 $productos = [];
 if ($conexion) {
-    $result = @pg_query($conexion, "SELECT * FROM productos ORDER BY id DESC");
+    $result = @pg_query($conexion, 'SELECT * FROM productos ORDER BY id DESC');
     if ($result) {
         while ($row = pg_fetch_assoc($result)) {
             $productos[] = $row;
@@ -35,7 +36,7 @@ if ($conexion) {
   <meta charset="utf-8">
   <title>TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=10">
+  <link rel="stylesheet" href="CSS/styles.css?v=11">
 </head>
 <body>
 
@@ -60,35 +61,6 @@ if ($conexion) {
       </div>
     </form>
   </nav>
-  <div class="header-phones" aria-label="Celulares destacados">
-    <article class="header-phone-card">
-      <img src="IMG/iphone13.png" alt="iPhone 13">
-      <div class="phone-copy">
-        <h4>iPhone 13</h4>
-        <p>Pantalla OLED y gran rendimiento para foto y video.</p>
-        <p class="phone-price">$14,999 MXN</p>
-        <p class="phone-features">128GB | 5G | Camara dual 12MP</p>
-      </div>
-    </article>
-    <article class="header-phone-card">
-      <img src="IMG/s21.png" alt="Samsung Galaxy S21">
-      <div class="phone-copy">
-        <h4>Galaxy S21</h4>
-        <p>Diseño premium con pantalla fluida y gran bateria.</p>
-        <p class="phone-price">$12,499 MXN</p>
-        <p class="phone-features">128GB | 120Hz | Snapdragon</p>
-      </div>
-    </article>
-    <article class="header-phone-card">
-      <img src="IMG/xiaomi_redmi12.png" alt="Xiaomi Redmi 12">
-      <div class="phone-copy">
-        <h4>Redmi 12</h4>
-        <p>Excelente opcion calidad-precio para uso diario.</p>
-        <p class="phone-price">$4,299 MXN</p>
-        <p class="phone-features">256GB | 50MP | 5000mAh</p>
-      </div>
-    </article>
-  </div>
   <div class="icons">
     <a href="carrito.php" class="icon-btn cart-link" aria-label="Carrito">
       <svg viewBox="0 0 24 24" class="cart-icon" aria-hidden="true">
@@ -113,13 +85,13 @@ if ($conexion) {
       <?php if (empty($productos)) { ?>
         <p>No hay productos disponibles</p>
       <?php } else {
-        foreach ($productos as $p) {
-          $rawImage  = (string) ($p['imagen'] ?? '');
-          $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
-          $img       = htmlspecialchars($imagePath);
-          $nombre    = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
-          $precio    = number_format((float) ($p['precio'] ?? 0), 2);
-          $id        = (int) ($p['id'] ?? 0);
+          foreach ($productos as $p) {
+              $rawImage = (string) ($p['imagen'] ?? '');
+              $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
+              $img = htmlspecialchars($imagePath ?? 'IMG/tecno.png');
+              $nombre = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
+              $precio = number_format((float) ($p['precio'] ?? 0), 2);
+              $id = (int) ($p['id'] ?? 0);
       ?>
         <div class="card">
           <div class="img-box">
@@ -134,7 +106,9 @@ if ($conexion) {
             </div>
           </div>
         </div>
-      <?php } } ?>
+      <?php
+          }
+      } ?>
     </div>
   </section>
 </div>
@@ -151,7 +125,7 @@ if ($conexion) {
     <div id="loginError" class="form-error" style="display:none;"></div>
     <form id="loginForm">
       <input name="usuario" placeholder="Usuario" required>
-      <input name="password" type="password" placeholder="Contraseña" required>
+      <input name="password" type="password" placeholder="Contrasena" required>
       <button type="submit" class="btn primary" style="width:100%; margin-top:12px;">Entrar</button>
     </form>
   </div>

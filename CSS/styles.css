@@ -81,54 +81,6 @@ a {
   gap: 12px;
 }
 
-.header-phones {
-  display: flex;
-  align-items: stretch;
-  gap: 10px;
-  max-width: 540px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.header-phone-card {
-  min-width: 170px;
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-.header-phone-card img {
-  width: 36px;
-  height: 58px;
-  object-fit: contain;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.24));
-  flex-shrink: 0;
-}
-
-.phone-copy h4 {
-  font-size: 13px;
-  line-height: 1.2;
-  margin-bottom: 2px;
-}
-
-.phone-copy p {
-  margin: 0;
-  font-size: 10px;
-  line-height: 1.25;
-}
-
-.phone-price {
-  font-weight: 700;
-  margin-top: 4px !important;
-}
-
-.phone-features {
-  opacity: 0.9;
-}
-
 .icon-btn {
   color: #fff;
   text-decoration: none;
@@ -903,12 +855,6 @@ footer img {
 
   .icons {
     justify-content: center;
-  }
-
-  .header-phones {
-    justify-content: center;
-    order: 3;
-    max-width: 100%;
   }
 
   .product-layout,

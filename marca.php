@@ -1,16 +1,20 @@
 <?php
 declare(strict_types=1);
+
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
-include "conexion.php";
+require_once __DIR__ . '/config/env.php';
+require_once __DIR__ . '/conexion.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 $marca = trim((string) ($_GET['marca'] ?? ''));
 $count = 0;
-if (!empty($_SESSION['cart'])) {
+
+if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     foreach ($_SESSION['cart'] as $qty) {
         $count += (int) $qty;
     }
@@ -18,7 +22,7 @@ if (!empty($_SESSION['cart'])) {
 
 $productos = [];
 if ($conexion && $marca !== '') {
-    $res = pg_query_params($conexion, "SELECT * FROM productos WHERE marca = \$1 ORDER BY id DESC", [$marca]);
+    $res = @pg_query_params($conexion, 'SELECT * FROM productos WHERE marca ILIKE $1 ORDER BY id DESC', [$marca]);
     if ($res) {
         while ($row = pg_fetch_assoc($res)) {
             $productos[] = $row;
@@ -34,7 +38,7 @@ if ($conexion && $marca !== '') {
   <meta charset="utf-8">
   <title><?= htmlspecialchars($marca ?: 'Marca') ?> | TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=10">
+  <link rel="stylesheet" href="CSS/styles.css?v=11">
 </head>
 <body>
 
@@ -59,35 +63,6 @@ if ($conexion && $marca !== '') {
       </div>
     </form>
   </nav>
-  <div class="header-phones" aria-label="Celulares destacados">
-    <article class="header-phone-card">
-      <img src="IMG/iphone13.png" alt="iPhone 13">
-      <div class="phone-copy">
-        <h4>iPhone 13</h4>
-        <p>Pantalla OLED y gran rendimiento para foto y video.</p>
-        <p class="phone-price">$14,999 MXN</p>
-        <p class="phone-features">128GB | 5G | Camara dual 12MP</p>
-      </div>
-    </article>
-    <article class="header-phone-card">
-      <img src="IMG/s21.png" alt="Samsung Galaxy S21">
-      <div class="phone-copy">
-        <h4>Galaxy S21</h4>
-        <p>Diseño premium con pantalla fluida y gran bateria.</p>
-        <p class="phone-price">$12,499 MXN</p>
-        <p class="phone-features">128GB | 120Hz | Snapdragon</p>
-      </div>
-    </article>
-    <article class="header-phone-card">
-      <img src="IMG/xiaomi_redmi12.png" alt="Xiaomi Redmi 12">
-      <div class="phone-copy">
-        <h4>Redmi 12</h4>
-        <p>Excelente opcion calidad-precio para uso diario.</p>
-        <p class="phone-price">$4,299 MXN</p>
-        <p class="phone-features">256GB | 50MP | 5000mAh</p>
-      </div>
-    </article>
-  </div>
   <div class="icons">
     <a href="carrito.php" class="icon-btn cart-link" aria-label="Carrito">
       <svg viewBox="0 0 24 24" class="cart-icon" aria-hidden="true">
@@ -108,26 +83,30 @@ if ($conexion && $marca !== '') {
       <?php if (empty($productos)) { ?>
         <p class="empty-state">No hay productos para esta marca.</p>
       <?php } else {
-        foreach ($productos as $p) {
-          $rawImage  = (string) ($p['imagen'] ?? '');
-          $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
-          $img       = htmlspecialchars($imagePath);
-          $id        = (int) $p['id'];
+          foreach ($productos as $p) {
+              $rawImage = (string) ($p['imagen'] ?? '');
+              $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
+              $img = htmlspecialchars($imagePath ?? 'IMG/tecno.png');
+              $id = (int) ($p['id'] ?? 0);
+              $nombre = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
+              $precio = number_format((float) ($p['precio'] ?? 0), 2);
       ?>
         <div class="card">
           <div class="img-box">
-            <a href="producto.php?id=<?= $id ?>"><img src="<?= $img ?>" alt="<?= htmlspecialchars($p['nombre']) ?>"></a>
+            <a href="producto.php?id=<?= $id ?>"><img src="<?= $img ?>" alt="<?= $nombre ?>"></a>
           </div>
           <div class="card-content">
-            <h3><?= htmlspecialchars($p['nombre']) ?></h3>
-            <p class="precio">$<?= number_format((float)$p['precio'], 2) ?></p>
+            <h3><?= $nombre ?></h3>
+            <p class="precio">$<?= $precio ?></p>
             <div class="card-actions">
               <button class="btn primary add-to-cart" data-id="<?= $id ?>" type="button">Agregar al carrito</button>
               <a href="producto.php?id=<?= $id ?>" class="btn ghost ver">Ver</a>
             </div>
           </div>
         </div>
-      <?php } } ?>
+      <?php
+          }
+      } ?>
     </div>
   </section>
 </div>
@@ -144,13 +123,13 @@ if ($conexion && $marca !== '') {
     <div id="loginError" class="form-error" style="display:none;"></div>
     <form id="loginForm">
       <input name="usuario" placeholder="Usuario" required>
-      <input name="password" type="password" placeholder="Contraseña" required>
+      <input name="password" type="password" placeholder="Contrasena" required>
       <button type="submit" class="btn primary" style="width:100%; margin-top:12px;">Entrar</button>
     </form>
   </div>
 </div>
 
-<?php include "includes/chatbot_bootphp"; ?>
+<?php include "includes/chatbot_boot.php"; ?>
 <script src="js/main.js?v=6"></script>
 </body>
 </html>
