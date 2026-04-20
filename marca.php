@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/conexion.php';
+require_once __DIR__ . '/includes/productos_catalogo.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -20,17 +21,7 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     }
 }
 
-$productos = [];
-if ($conexion && $marca !== '') {
-    $res = @pg_query_params($conexion, 'SELECT * FROM productos WHERE marca ILIKE $1 ORDER BY id DESC', [$marca]);
-    if ($res) {
-        while ($row = pg_fetch_assoc($res)) {
-            $productos[] = $row;
-        }
-    } else {
-        error_log('Error marca: ' . pg_last_error($conexion));
-    }
-}
+$productos = obtenerProductosPorMarca($conexion, $marca);
 ?>
 <!doctype html>
 <html lang="es">
@@ -84,9 +75,7 @@ if ($conexion && $marca !== '') {
         <p class="empty-state">No hay productos para esta marca.</p>
       <?php } else {
           foreach ($productos as $p) {
-              $rawImage = (string) ($p['imagen'] ?? '');
-              $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
-              $img = htmlspecialchars($imagePath ?? 'IMG/tecno.png');
+              $img = htmlspecialchars(normalizarImagenProducto($p['imagen'] ?? null));
               $id = (int) ($p['id'] ?? 0);
               $nombre = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
               $precio = number_format((float) ($p['precio'] ?? 0), 2);

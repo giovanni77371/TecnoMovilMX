@@ -1,6 +1,18 @@
 <?php
-include "conexion.php";
-session_start();
+declare(strict_types=1);
+
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/config/env.php';
+require_once __DIR__ . '/conexion.php';
+require_once __DIR__ . '/includes/productos_catalogo.php';
+
+bootstrapProductosCatalogo($conexion);
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $id = intval($_GET['id'] ?? 0);
 $res = pg_query_params($conexion, "SELECT * FROM productos WHERE id = $1", [$id]);
@@ -63,8 +75,7 @@ if (!empty($_SESSION['cart'])) {
 <div class="container page-shell product-layout">
   <div class="product-media">
     <?php
-      $rawImage = (string) ($p['imagen'] ?? '');
-      $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
+      $imagePath = normalizarImagenProducto($p['imagen'] ?? null);
     ?>
     <img src="<?= htmlspecialchars($imagePath ?: 'IMG/tecno.png') ?>" alt="<?= htmlspecialchars($p['nombre']) ?>">
   </div>
@@ -73,10 +84,10 @@ if (!empty($_SESSION['cart'])) {
     <p class="section-eyebrow"><?= htmlspecialchars($p['marca']) ?></p>
     <h1><?= htmlspecialchars($p['nombre']) ?></h1>
     <h2 class="product-price">$<?= number_format($p['precio'], 2) ?></h2>
-    <p><?= nl2br(htmlspecialchars($p['descripcion'])) ?></p>
+    <p><?= nl2br(htmlspecialchars((string) ($p['descripcion'] ?? ''))) ?></p>
 
     <h3>Caracteristicas</h3>
-    <p><?= nl2br(htmlspecialchars($p['caracteristicas'])) ?></p>
+    <p><?= nl2br(htmlspecialchars((string) ($p['caracteristicas'] ?? ''))) ?></p>
 
     <div class="product-actions">
       <button class="btn primary add-to-cart" data-id="<?= (int) $p['id'] ?>" type="button">Agregar al carrito</button>

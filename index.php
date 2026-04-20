@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/conexion.php';
+require_once __DIR__ . '/includes/productos_catalogo.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -18,17 +19,7 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     }
 }
 
-$productos = [];
-if ($conexion) {
-    $result = @pg_query($conexion, 'SELECT * FROM productos ORDER BY id DESC');
-    if ($result) {
-        while ($row = pg_fetch_assoc($result)) {
-            $productos[] = $row;
-        }
-    } else {
-        error_log('Error productos: ' . pg_last_error($conexion));
-    }
-}
+$productos = obtenerProductosCatalogo($conexion);
 ?>
 <!doctype html>
 <html lang="es">
@@ -86,9 +77,7 @@ if ($conexion) {
         <p>No hay productos disponibles</p>
       <?php } else {
           foreach ($productos as $p) {
-              $rawImage = (string) ($p['imagen'] ?? '');
-              $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
-              $img = htmlspecialchars($imagePath ?? 'IMG/tecno.png');
+              $img = htmlspecialchars(normalizarImagenProducto($p['imagen'] ?? null));
               $nombre = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
               $precio = number_format((float) ($p['precio'] ?? 0), 2);
               $id = (int) ($p['id'] ?? 0);
