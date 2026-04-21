@@ -167,17 +167,7 @@ unset($_SESSION['checkout_error']);
         </table>
       </div>
 
-      <div class="summary-card cart-inline-actions">
-        <div class="summary-line">
-          <span>Productos</span>
-          <strong><?= $count ?></strong>
-        </div>
-        <div class="summary-line summary-total">
-          <span>Total</span>
-          <strong>$<?= number_format($total, 2) ?></strong>
-        </div>
-        <a href="pago.php" class="btn primary pay-btn">Pagar</a>
-      </div>
+      
     <?php } ?>
   </div>
 
