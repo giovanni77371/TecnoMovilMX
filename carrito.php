@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
@@ -68,7 +67,7 @@ unset($_SESSION['checkout_error']);
   <meta charset="utf-8">
   <title>Carrito | TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=13">
+  <link rel="stylesheet" href="CSS/styles.css?v=14">
 </head>
 <body>
 
@@ -103,11 +102,7 @@ unset($_SESSION['checkout_error']);
       </svg><span id="cartCount"><?= $count ?></span>
     </a>
     <a href="#" class="icon-btn" id="openLogin" aria-label="Admin">Admin</a>
-    <a href="login.php" class="icon-btn">Login</a>
-    <?php if ($usuarioActual) { ?>
-      <span class="icon-btn user-badge"><?= htmlspecialchars($usuarioActual['username']) ?></span>
-      <a href="logout.php" class="icon-btn">Salir</a>
-    <?php } ?>
+    <?php include "includes/user_menu.php"; ?>
   </div>
 </header>
 
@@ -143,6 +138,8 @@ unset($_SESSION['checkout_error']);
           <tbody>
             <?php foreach ($items as $it) {
               $img = htmlspecialchars(normalizarImagenProducto($it['imagen'] ?? null));
+              $precioUnitario = is_numeric((string) ($it['precio'] ?? null)) ? (float) $it['precio'] : 0.0;
+              $subtotal = is_numeric((string) ($it['subtotal'] ?? null)) ? (float) $it['subtotal'] : 0.0;
             ?>
               <tr>
                 <td>
@@ -154,9 +151,9 @@ unset($_SESSION['checkout_error']);
                     </div>
                   </div>
                 </td>
-                <td>$<?= number_format($it['precio'], 2) ?></td>
+                <td>$<?= number_format($precioUnitario, 2) ?></td>
                 <td><?= (int) $it['qty'] ?></td>
-                <td>$<?= number_format($it['subtotal'], 2) ?></td>
+                <td>$<?= number_format($subtotal, 2) ?></td>
                 <td>
                   <form method="post">
                     <input type="hidden" name="action" value="remove">
@@ -168,6 +165,18 @@ unset($_SESSION['checkout_error']);
             <?php } ?>
           </tbody>
         </table>
+      </div>
+
+      <div class="summary-card cart-inline-actions">
+        <div class="summary-line">
+          <span>Productos</span>
+          <strong><?= $count ?></strong>
+        </div>
+        <div class="summary-line summary-total">
+          <span>Total</span>
+          <strong>$<?= number_format($total, 2) ?></strong>
+        </div>
+        <a href="pago.php" class="btn primary pay-btn">Pagar</a>
       </div>
     <?php } ?>
   </div>
@@ -198,7 +207,7 @@ unset($_SESSION['checkout_error']);
 
 <?php include "includes/admin_login_modal.php"; ?>
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=8"></script>
+<script src="js/main.js?v=9"></script>
 </body>
 </html>
 

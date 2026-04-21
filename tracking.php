@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
@@ -44,7 +43,7 @@ $progressIndex = $envio ? envios_progress_index($envio['estado']) : -1;
   <meta charset="utf-8">
   <title>Tracking | TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=13">
+  <link rel="stylesheet" href="CSS/styles.css?v=14">
 </head>
 <body>
 <header class="site-header">
@@ -78,11 +77,7 @@ $progressIndex = $envio ? envios_progress_index($envio['estado']) : -1;
       </svg><span id="cartCount"><?= $count ?></span>
     </a>
     <a href="#" class="icon-btn" id="openLogin" aria-label="Admin">Admin</a>
-    <a href="login.php" class="icon-btn">Login</a>
-    <?php if ($usuarioActual) { ?>
-      <span class="icon-btn user-badge"><?= htmlspecialchars($usuarioActual['username']) ?></span>
-      <a href="logout.php" class="icon-btn">Salir</a>
-    <?php } ?>
+    <?php include "includes/user_menu.php"; ?>
   </div>
 </header>
 
@@ -133,7 +128,7 @@ $progressIndex = $envio ? envios_progress_index($envio['estado']) : -1;
 
 <?php include "includes/admin_login_modal.php"; ?>
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=8"></script>
+<script src="js/main.js?v=9"></script>
 </body>
 </html>
 

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
@@ -30,7 +29,7 @@ $productos = obtenerProductosCatalogo($conexion);
   <meta charset="utf-8">
   <title>TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=13">
+  <link rel="stylesheet" href="CSS/styles.css?v=14">
 </head>
 <body>
 
@@ -62,11 +61,7 @@ $productos = obtenerProductosCatalogo($conexion);
       </svg><span id="cartCount"><?= $count ?></span>
     </a>
     <a href="#" class="icon-btn" id="openLogin" aria-label="Admin">Admin</a>
-    <a href="login.php" class="icon-btn">Login</a>
-    <?php if ($usuarioActual) { ?>
-      <span class="icon-btn user-badge"><?= htmlspecialchars($usuarioActual['username']) ?></span>
-      <a href="logout.php" class="icon-btn">Salir</a>
-    <?php } ?>
+    <?php include "includes/user_menu.php"; ?>
   </div>
 </header>
 
@@ -117,7 +112,7 @@ $productos = obtenerProductosCatalogo($conexion);
 
 <?php include "includes/admin_login_modal.php"; ?>
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=8"></script>
+<script src="js/main.js?v=9"></script>
 <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
 <script src="https://files.bpcontent.cloud/2026/04/15/04/20260415044635-LQSLIT6F.js" defer></script>
 </body>

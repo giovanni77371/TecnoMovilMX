@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
@@ -43,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="utf-8">
   <title>Registro | TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=13">
+  <link rel="stylesheet" href="CSS/styles.css?v=14">
 </head>
 <body class="auth-page">
   <main class="auth-shell auth-shell-register">
