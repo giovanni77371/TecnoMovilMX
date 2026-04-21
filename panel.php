@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/conexion.php';
 require_once __DIR__ . '/includes/productos_catalogo.php';
+require_once __DIR__ . '/includes/compras.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -18,6 +19,7 @@ if (!isset($_SESSION['admin'])) {
 }
 
 $productos = obtenerProductosCatalogo($conexion);
+$historialCompras = compras_historial_admin($conexion);
 ?>
 <!doctype html>
 <html lang="es">
@@ -25,7 +27,7 @@ $productos = obtenerProductosCatalogo($conexion);
   <meta charset="utf-8">
   <title>Panel de Administracion</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=11">
+  <link rel="stylesheet" href="CSS/styles.css?v=13">
 </head>
 <body>
 
@@ -91,6 +93,42 @@ $productos = obtenerProductosCatalogo($conexion);
       } ?>
     </tbody>
   </table>
+
+  <section class="admin-history">
+    <div class="section-heading">
+      <p class="section-eyebrow">Compras</p>
+      <h2>Historial de compras</h2>
+    </div>
+
+    <table class="admin-table admin-table-history">
+      <thead>
+        <tr>
+          <th>Referencia</th>
+          <th>Usuario</th>
+          <th>Celular(es) comprados</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (empty($historialCompras)) { ?>
+          <tr>
+            <td colspan="4" class="empty-state">Todavia no hay compras registradas.</td>
+          </tr>
+        <?php } else {
+            foreach ($historialCompras as $compra) {
+        ?>
+          <tr>
+            <td><?= htmlspecialchars((string) ($compra['referencia'] ?? '')) ?></td>
+            <td><?= htmlspecialchars((string) ($compra['username'] ?? '')) ?></td>
+            <td><?= htmlspecialchars((string) ($compra['productos'] ?? '')) ?></td>
+            <td>$<?= number_format((float) ($compra['total_compra'] ?? 0), 2) ?></td>
+          </tr>
+        <?php
+            }
+        } ?>
+      </tbody>
+    </table>
+  </section>
 </div>
 
 </body>

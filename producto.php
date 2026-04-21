@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 declare(strict_types=1);
 
 ini_set('display_errors', '0');
@@ -7,12 +7,12 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/conexion.php';
 require_once __DIR__ . '/includes/productos_catalogo.php';
+require_once __DIR__ . '/includes/usuarios.php';
 
 bootstrapProductosCatalogo($conexion);
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+usuarios_start_session();
+usuarios_ensure_table($conexion);
+usuarios_require_login();
 
 $id = intval($_GET['id'] ?? 0);
 $res = @pg_query_params($conexion, 'SELECT * FROM productos WHERE id = $1', [$id]);
@@ -35,6 +35,7 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     }
 }
 
+$usuarioActual = usuarios_current();
 $nombre = htmlspecialchars((string) ($p['nombre'] ?? 'Producto'));
 $marca = htmlspecialchars((string) ($p['marca'] ?? ''));
 $precio = is_numeric((string) ($p['precio'] ?? null)) ? number_format((float) $p['precio'], 2) : '0.00';
@@ -48,7 +49,7 @@ $imagePath = normalizarImagenProducto($p['imagen'] ?? null);
   <meta charset="utf-8">
   <title><?= $nombre ?></title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=12">
+  <link rel="stylesheet" href="CSS/styles.css?v=13">
 </head>
 <body>
 
@@ -83,6 +84,11 @@ $imagePath = normalizarImagenProducto($p['imagen'] ?? null);
       </svg><span id="cartCount"><?= $count ?></span>
     </a>
     <a href="#" class="icon-btn" id="openLogin" aria-label="Admin">Admin</a>
+    <a href="login.php" class="icon-btn">Login</a>
+    <?php if ($usuarioActual) { ?>
+      <span class="icon-btn user-badge"><?= htmlspecialchars($usuarioActual['username']) ?></span>
+      <a href="logout.php" class="icon-btn">Salir</a>
+    <?php } ?>
   </div>
 </header>
 
@@ -109,21 +115,9 @@ $imagePath = normalizarImagenProducto($p['imagen'] ?? null);
   </div>
 </div>
 
-<div id="loginModal" class="modal" style="display:none;">
-  <div class="modal-content login-box">
-    <button class="close" id="closeLogin" aria-label="Cerrar">x</button>
-    <h2 class="login-title">Acceso Administrador</h2>
-    <div id="loginError" class="form-error" style="display:none;"></div>
-    <form method="post" action="" id="loginForm">
-      <input name="usuario" placeholder="Usuario" required>
-      <input name="password" type="password" placeholder="Contrasena" required>
-      <button type="submit" class="btn primary" style="width:100%; margin-top:12px;">Entrar</button>
-    </form>
-  </div>
-</div>
-
+<?php include "includes/admin_login_modal.php"; ?>
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=7"></script>
+<script src="js/main.js?v=8"></script>
 </body>
 </html>
 

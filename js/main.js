@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const fd = new FormData(loginForm);
-      const res = await fetch('login.php', { method: 'POST', body: fd });
+      const res = await fetch('admin_login.php', { method: 'POST', body: fd });
       const json = await res.json();
 
       if (json.ok) {
@@ -48,6 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'action=add&id=' + encodeURIComponent(id)
     });
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      window.location = 'login.php';
+      return;
+    }
 
     const json = await res.json();
     if (json.ok) {

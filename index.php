@@ -7,10 +7,13 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/conexion.php';
 require_once __DIR__ . '/includes/productos_catalogo.php';
+require_once __DIR__ . '/includes/usuarios.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+usuarios_start_session();
+usuarios_ensure_table($conexion);
+usuarios_require_login();
+
+$usuarioActual = usuarios_current();
 
 $count = 0;
 if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
@@ -27,7 +30,7 @@ $productos = obtenerProductosCatalogo($conexion);
   <meta charset="utf-8">
   <title>TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=11">
+  <link rel="stylesheet" href="CSS/styles.css?v=13">
 </head>
 <body>
 
@@ -59,6 +62,11 @@ $productos = obtenerProductosCatalogo($conexion);
       </svg><span id="cartCount"><?= $count ?></span>
     </a>
     <a href="#" class="icon-btn" id="openLogin" aria-label="Admin">Admin</a>
+    <a href="login.php" class="icon-btn">Login</a>
+    <?php if ($usuarioActual) { ?>
+      <span class="icon-btn user-badge"><?= htmlspecialchars($usuarioActual['username']) ?></span>
+      <a href="logout.php" class="icon-btn">Salir</a>
+    <?php } ?>
   </div>
 </header>
 
@@ -107,21 +115,9 @@ $productos = obtenerProductosCatalogo($conexion);
   <p>&copy; 2025 TecnoMovil MX - Todos los derechos reservados.</p>
 </footer>
 
-<div id="loginModal" class="modal" style="display:none;">
-  <div class="modal-content login-box">
-    <button class="close" id="closeLogin" aria-label="Cerrar">x</button>
-    <h2 class="login-title">Acceso Administrador</h2>
-    <div id="loginError" class="form-error" style="display:none;"></div>
-    <form id="loginForm">
-      <input name="usuario" placeholder="Usuario" required>
-      <input name="password" type="password" placeholder="Contrasena" required>
-      <button type="submit" class="btn primary" style="width:100%; margin-top:12px;">Entrar</button>
-    </form>
-  </div>
-</div>
-
+<?php include "includes/admin_login_modal.php"; ?>
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=6"></script>
+<script src="js/main.js?v=8"></script>
 <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
 <script src="https://files.bpcontent.cloud/2026/04/15/04/20260415044635-LQSLIT6F.js" defer></script>
 </body>

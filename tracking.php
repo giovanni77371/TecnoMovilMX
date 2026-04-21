@@ -1,12 +1,24 @@
 <?php
-include "conexion.php";
-include "includes/envios.php";
-session_start();
+declare(strict_types=1);
+
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/config/env.php';
+require_once __DIR__ . '/conexion.php';
+require_once __DIR__ . '/includes/envios.php';
+require_once __DIR__ . '/includes/usuarios.php';
+
+usuarios_start_session();
+usuarios_ensure_table($conexion);
+usuarios_require_login();
+
+$usuarioActual = usuarios_current();
 
 $count = 0;
-if (!empty($_SESSION['cart'])) {
+if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     foreach ($_SESSION['cart'] as $qty) {
-        $count += $qty;
+        $count += (int) $qty;
     }
 }
 
@@ -32,7 +44,7 @@ $progressIndex = $envio ? envios_progress_index($envio['estado']) : -1;
   <meta charset="utf-8">
   <title>Tracking | TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=12">
+  <link rel="stylesheet" href="CSS/styles.css?v=13">
 </head>
 <body>
 <header class="site-header">
@@ -65,6 +77,12 @@ $progressIndex = $envio ? envios_progress_index($envio['estado']) : -1;
         <path d="M7 4H3v2h2.2l1.7 8.4A2 2 0 0 0 8.86 16H18v-2H8.86l-.3-1.5h9.57a2 2 0 0 0 1.95-1.55L21 6H7.42L7 4Zm2 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" fill="currentColor"/>
       </svg><span id="cartCount"><?= $count ?></span>
     </a>
+    <a href="#" class="icon-btn" id="openLogin" aria-label="Admin">Admin</a>
+    <a href="login.php" class="icon-btn">Login</a>
+    <?php if ($usuarioActual) { ?>
+      <span class="icon-btn user-badge"><?= htmlspecialchars($usuarioActual['username']) ?></span>
+      <a href="logout.php" class="icon-btn">Salir</a>
+    <?php } ?>
   </div>
 </header>
 
@@ -113,8 +131,9 @@ $progressIndex = $envio ? envios_progress_index($envio['estado']) : -1;
   </section>
 </div>
 
+<?php include "includes/admin_login_modal.php"; ?>
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=7"></script>
+<script src="js/main.js?v=8"></script>
 </body>
 </html>
 

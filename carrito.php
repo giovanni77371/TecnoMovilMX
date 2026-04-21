@@ -1,6 +1,20 @@
 <?php
-session_start();
-include "conexion.php";
+declare(strict_types=1);
+
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/config/env.php';
+require_once __DIR__ . '/conexion.php';
+require_once __DIR__ . '/includes/productos_catalogo.php';
+require_once __DIR__ . '/includes/usuarios.php';
+
+usuarios_start_session();
+usuarios_ensure_table($conexion);
+usuarios_require_login();
+bootstrapProductosCatalogo($conexion);
+
+$usuarioActual = usuarios_current();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -54,7 +68,7 @@ unset($_SESSION['checkout_error']);
   <meta charset="utf-8">
   <title>Carrito | TecnoMovil MX</title>
   <link rel="icon" type="image/png" href="IMG/favicon.png?v=1">
-  <link rel="stylesheet" href="CSS/styles.css?v=10">
+  <link rel="stylesheet" href="CSS/styles.css?v=13">
 </head>
 <body>
 
@@ -88,6 +102,12 @@ unset($_SESSION['checkout_error']);
         <path d="M7 4H3v2h2.2l1.7 8.4A2 2 0 0 0 8.86 16H18v-2H8.86l-.3-1.5h9.57a2 2 0 0 0 1.95-1.55L21 6H7.42L7 4Zm2 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" fill="currentColor"/>
       </svg><span id="cartCount"><?= $count ?></span>
     </a>
+    <a href="#" class="icon-btn" id="openLogin" aria-label="Admin">Admin</a>
+    <a href="login.php" class="icon-btn">Login</a>
+    <?php if ($usuarioActual) { ?>
+      <span class="icon-btn user-badge"><?= htmlspecialchars($usuarioActual['username']) ?></span>
+      <a href="logout.php" class="icon-btn">Salir</a>
+    <?php } ?>
   </div>
 </header>
 
@@ -122,9 +142,7 @@ unset($_SESSION['checkout_error']);
           </thead>
           <tbody>
             <?php foreach ($items as $it) {
-              $rawImage = (string) ($it['imagen'] ?? '');
-              $imagePath = $rawImage !== '' ? preg_replace('/^img\//i', 'IMG/', $rawImage) : 'IMG/tecno.png';
-              $img = htmlspecialchars($imagePath ?: 'IMG/tecno.png');
+              $img = htmlspecialchars(normalizarImagenProducto($it['imagen'] ?? null));
             ?>
               <tr>
                 <td>
@@ -168,7 +186,7 @@ unset($_SESSION['checkout_error']);
       </div>
 
       <?php if (!empty($items)) { ?>
-        <form action="stripe_checkout.php" method="post">
+        <form action="pago.php" method="get">
           <button type="submit" class="btn primary pay-btn">Pagar</button>
         </form>
       <?php } else { ?>
@@ -178,8 +196,9 @@ unset($_SESSION['checkout_error']);
   </aside>
 </div>
 
+<?php include "includes/admin_login_modal.php"; ?>
 <?php include "includes/chatbot_boot.php"; ?>
-<script src="js/main.js?v=6"></script>
+<script src="js/main.js?v=8"></script>
 </body>
 </html>
 
