@@ -1,28 +1,38 @@
 <?php
-declare(strict_types=1);
+
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
 
 header('Content-Type: application/json; charset=utf-8');
+http_response_code(200);
 
-require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/conexion.php';
-require_once __DIR__ . '/includes/productos_catalogo.php';
 
-$marca = trim((string) ($_GET['marca'] ?? ''));
-$productos = $marca !== '' ? obtenerProductosPorMarca($conexion, $marca) : obtenerProductosCatalogo($conexion);
+if (!$conexion) {
+    error_log('api_productos.php: no se pudo establecer la conexion a PostgreSQL.');
+    echo json_encode([
+        'error' => 'No se pudo conectar a la base de datos.',
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
-$payload = array_map(static function (array $producto): array {
-    return [
-        'id' => (int) ($producto['id'] ?? 0),
-        'nombre' => (string) ($producto['nombre'] ?? ''),
-        'marca' => (string) ($producto['marca'] ?? ''),
-        'precio' => (float) ($producto['precio'] ?? 0),
-        'descripcion' => (string) ($producto['descripcion'] ?? ''),
-        'imagen' => normalizarImagenProducto($producto['imagen'] ?? null),
-    ];
-}, $productos);
+$query = 'SELECT * FROM productos ORDER BY id DESC';
+$result = @pg_query($conexion, $query);
 
-echo json_encode([
-    'ok' => true,
-    'count' => count($payload),
-    'productos' => $payload,
-], JSON_UNESCAPED_UNICODE);
+if (!$result) {
+    $error = pg_last_error($conexion) ?: 'Error desconocido al consultar productos.';
+    error_log('api_productos.php: ' . $error);
+
+    echo json_encode([
+        'error' => $error,
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+$productos = [];
+
+while ($row = pg_fetch_assoc($result)) {
+    $productos[] = $row;
+}
+
+echo json_encode($productos, JSON_UNESCAPED_UNICODE);
